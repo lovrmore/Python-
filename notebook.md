@@ -2020,3 +2020,1459 @@ filenames = ['alice.txt', 'siddhartha.txt', 'moby_dick.txt', 'little_women.txt']
 for filename in filenames: 
     count_words(filename) 
 ```
+
+### 存储数据
+
+#### 使用 json.dump()和 json.load()
+
+```python
+import json
+
+number = [2, 3, 5, 7, 11, 13]
+
+filename = 'numbers.json'
+with open(filename, 'w') as f_obj:
+    json.dump(number, f_obj)
+```
+
+```python
+import json
+
+filename = 'numbers.json'
+with open(filename) as f_obj:
+    numbers = json.load(f_obj)
+
+print(numbers)
+```
+
+#### 保存和读取用户生成的数据
+
+```python
+import json
+
+username = input('What is your name? ')
+
+filename = 'username.json'
+with open(filename, 'w') as f_obj:
+    json.dump(username, f_obj)
+    print("We'll remember you when you come back, " + username + '!')
+```
+
+```python
+import json
+
+filename = 'numbers.json'
+with open(filename) as f_obj:
+    numbers = json.load(f_obj)
+
+print(numbers)
+```
+
+```python
+import json
+
+# Load the username. if it has been stored previously.
+# Otherwise, prompt for the username and store it.
+filename = 'username.json'
+try:
+    with open(filename) as f_obj:
+        username = json.load(f_obj)
+except FileNotFoundError:
+    username = input('What is your name? ')
+    with open(filename, 'w') as f_obj:
+        json.dump(username, f_obj)
+        print("We'll remember you when you come back, " + username + '!')
+else:
+    print('Welcome back, ' + username + '!')
+```
+
+#### 重构
+
+```python
+import json
+
+def get_stored_username():
+    """Get stored username if available."""
+    filename = 'username.json'
+    try:
+        with open(filename) as f_obj:
+            username = json.load(f_obj)
+    except FileNotFoundError:
+        return None
+    else:
+        return username
+
+def get_new_username():
+    """Prompt for a new username."""
+    username = input('What is your name? ')
+    filename = 'username.json'
+    with open(filename, 'w') as f_obj:
+        json.dump(username, f_obj)
+    return username
+
+def greet_user():
+    """Greet the user by name."""
+    username = get_stored_username()
+    if username:
+        print("Welcome back, " + username + '!')
+    else:
+        username = get_new_username()
+        print("We'll remember you when you come back, " + username + '!')
+
+greet_user()
+```
+
+## 测试代码
+
+### 测试函数
+
+```python
+def get_formatted_name(first, last):
+    """Generate a neatly formatted full name"""
+    full_name = first + ' ' + last
+    return full_name.title()
+```
+
+```python
+from name_function import get_formatted_name
+
+print("Enter 'q' at any time to quit.")
+while True:
+    first = input('\nPlease give me a first name: ')
+    if first == 'q':
+        break
+    last = input('\nPlease give me a last name: ')
+    if last == 'q':
+        break
+
+    formatted_name = get_formatted_name(first, last)
+    print('\tNeatly formatted name: ' + formatted_name + '.')
+```
+
+#### 可通过的测试
+
+```python
+import unittest
+from name_function import get_formatted_name
+
+class NameTestCase(unittest.TestCase):
+    """Tests for 'name_function.py'."""
+
+    def test_first_last_name(self):
+        """Do names like 'Janis Joplin' work?"""
+        formatted_name = get_formatted_name('janis', 'joplin')
+        self.assertEqual(formatted_name, 'Janis Joplin')
+
+unittest.main()
+```
+
+#### 不能通过的测试
+
+#### 添加新测试
+
+```python
+import unittest
+from name_function import get_formatted_name
+
+class NameTestCase(unittest.TestCase):
+    """Tests for 'name_function.py'."""
+
+    def test_first_last_name(self):
+        """Do names like 'Janis Joplin' work?"""
+        formatted_name = get_formatted_name('janis', 'joplin')
+        self.assertEqual(formatted_name, 'Janis Joplin')
+
+    def test_first_last_middle_name(self):
+        """Do names like 'Wolfgang Amadeus Mozart' work?"""
+        formatted_name = get_formatted_name('wolfgang', 'mozart', 'amadeus')
+        self.assertEqual(formatted_name, 'Wolfgang Amadeus Mozart')
+
+unittest.main()
+```
+
+### 测试类
+
+#### 各种断言方法
+
+#### 一个要测试的类
+
+```python
+class AnonymousSurvey():
+    """Collect anonymous answers to a survey question."""
+
+    def __init__(self, question):
+        """Store a question, and prepare to store responses."""
+        self.question = question
+        self.responses = []
+
+    def show_question(self):
+        """Show the survey question."""
+        print(self.question)
+
+    def store_response(self, new_response):
+        """Store a single response to the survey."""
+        self.responses.append(new_response)
+
+    def show_results(self):
+        """Show all the responses that have been given."""
+        print('Survey results:')
+        for response in self.responses:
+            print('- ' + response)
+```
+
+```python
+from survey import AnonymousSurvey
+
+# Define a question, and make a survey.
+question = 'What language did you first learn to speak?'
+my_survey = AnonymousSurvey(question)
+
+# Show the question, and store responses to the question.
+my_survey.show_question()
+print("Enter 'q' at any time to quit.\n")
+while True:
+    response = input('Language: ')
+    if response == 'q':
+        break
+    my_survey.store_response(response)
+
+# Show the survey results.
+print('\nThank you to everyone who participated in the survey!')
+my_survey.show_results()
+```
+
+#### 测试 AnonymousSurvey 类
+
+```python
+import unittest
+from survey import AnonymousSurvey
+
+class TestAnonymousSurvey(unittest.TestCase):
+    """Tests for the class AnonymousSurvey"""
+
+    def setUp(self):
+        """Create a survey and a set of responses for use in all test methods."""
+        question = 'What language did you first learn to speak?'
+        self.my_survey = AnonymousSurvey(question)
+        self.responses = ['English', 'Spanish', 'Mandarin']
+
+    def test_store_single_response(self):
+        """Test that a single response is stored properly."""
+        question = 'What language did you first learn to speak?'
+        my_survey = AnonymousSurvey(question)
+        my_survey.store_response('English')
+
+        self.assertIn('English', my_survey.responses)
+
+    def test_store_three_responses(self):
+        """Test that three individual responses are stored properly."""
+        question = 'What langugae did you first learn to speak?'
+        my_survey = AnonymousSurvey(question)
+        responses = ['English', 'Spanish', 'Mandarin']
+        for response in responses:
+            my_survey.store_response(response)
+
+        for response in responses:
+            self.assertIn(response, my_survey.responses)
+
+unittest.main()
+```
+
+#### 方法 setUp()
+
+unittest.TestCase类包含方法setUp()，让我们只需创建这些对象一次，并在每个测试方法中使用它们
+
+```python
+import unittest
+from survey import AnonymousSurvey
+
+class TestAnonymousSurvey(unittest.TestCase):
+    """Tests for the class AnonymousSurvey"""
+
+    def setUp(self):
+        """Create a survey and a set of responses for use in all test methods."""
+        question = 'What language did you first learn to speak?'
+        self.my_survey = AnonymousSurvey(question)
+        self.responses = ['English', 'Spanish', 'Mandarin']
+
+    def test_store_single_response(self):
+        """Test that a single response is stored properly."""
+        self.my_survey.store_response(self.responses[0])
+        self.assertIn(self.responses[0], self.my_survey.responses)
+
+    def test_store_three_responses(self):
+        """Test that three individual responses are stored properly."""
+        for response in self.responses:
+            self.my_survey.store_response(response)
+        for response in self.responses:
+            self.assertIn(response, self.my_survey.responses)
+
+unittest.main()
+```
+
+## 生成数据
+
+### 安装 matplotlib
+
+通过Anaconda安装了matplotlib，但是具体原理尚不清楚，有待学习
+
+疑问：Anaconda和docker之间的区别，两者都能配置和生成环境
+
+### 绘制简单的折线图
+
+import matplotlib.pyplot as plt
+
+squares = [1, 4, 9, 16, 25]
+
+plt.plot(squares)
+plt.show()
+
+#### 修改标签文字和线条粗细
+
+```python
+import matplotlib.pyplot as plt
+
+squares = [1, 4, 9, 16, 25]
+plt.plot(squares, linewidth=5)
+
+# Set chart title and label axes.
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', labelsize=14)
+
+plt.show()
+```
+
+#### 校正图形
+
+```python
+import matplotlib.pyplot as plt
+
+input_values = [1, 2, 3, 4, 5]
+squares = [1, 4, 9, 16, 25]
+plt.plot(input_values, squares, linewidth=5)
+
+# Set chart title and label axes.
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', labelsize=14)
+
+plt.show()
+```
+
+#### 使用 scatter()绘制散点图并设置其样式
+
+```python
+import matplotlib.pyplot as plt
+
+plt.scatter(2, 4, s=200)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+plt.show()
+```
+
+#### 使用 scatter()绘制一系列点
+
+```python
+import matplotlib.pyplot as plt
+
+x_values = [1, 2, 3, 4, 5]
+y_values = [1, 4, 9, 16, 25]
+
+plt.scatter(x_values, y_values, s=100)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+plt.show()
+```
+
+#### 自动计算数据
+
+```python
+import matplotlib.pyplot as plt
+
+x_values = list(range(1, 1001))
+y_values = [x**2 for x in x_values]
+
+plt.scatter(x_values, y_values, s=40)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+# Set the range for each axis.
+plt.axis([0, 1100, 0, 1100000])
+
+plt.show()
+```
+
+#### 删除数据点的轮廓
+
+```python
+import matplotlib.pyplot as plt
+
+x_values = list(range(1, 1001))
+y_values = [x**2 for x in x_values]
+
+plt.scatter(x_values, y_values, edgecolors='none', s=40)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+# Set the range for each axis.
+plt.axis([0, 1100, 0, 1100000])
+
+plt.show()
+```
+
+#### 自定义颜色
+
+```python
+import matplotlib.pyplot as plt
+
+x_values = list(range(1, 1001))
+y_values = [x**2 for x in x_values]
+
+plt.scatter(x_values, y_values, c='red', edgecolors='none', s=40)
+# plt.scatter(x_values, y_values, c=(0, 0, 0.8), edgecolors='none', s=40)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+# Set the range for each axis.
+plt.axis([0, 1100, 0, 1100000])
+
+plt.show()
+```
+
+#### 使用颜色映射
+
+```python
+import matplotlib.pyplot as plt
+
+x_values = list(range(1, 1001))
+y_values = [x**2 for x in x_values]
+
+plt.scatter(
+    x_values, y_values, c=y_values, cmap=plt.cm.Blues, edgecolors='none', s=40)
+
+# Set chart title and label axes.
+
+plt.title('Square Numbers', fontsize=24)
+plt.xlabel('Value', fontsize=14)
+plt.ylabel('Square of Value', fontsize=14)
+
+# Set size of tick labels.
+plt.tick_params(axis='both', which='major', labelsize=14)
+
+# Set the range for each axis.
+plt.axis([0, 1100, 0, 1100000])
+
+plt.show()
+```
+
+#### 选择方向
+
+```python
+from random import choice
+
+class RandomWalk():
+    """A class to generate random walks."""
+    
+    def __init__(self, num_points=5000):
+        """Initialize attributes of a walk."""
+        self.num_points = num_points
+
+        # All walks start at (0, 0).
+        self.x_values = [0]
+        self.y_values = [0]
+
+    def fill_walk(self):
+        """Calculate all the points in the walk."""
+
+        # Keep taking steps until the walk reaches the desired length.
+        while len(self.x_values) < self.num_points:
+            # Decide which direction to go and how far to go in that direction.
+            x_direction = choice([1, -1])
+            x_distance = choice([0, 1, 2, 3, 4])
+            x_step = x_direction * x_distance
+
+            y_direction = choice([1, -1])
+            y_distance = choice([0, 1, 2, 3, 4])
+            y_step = y_direction * y_distance
+
+            # Reject moves that go nowhere.
+            if x_step == 0 and y_step == 0:
+                continue
+
+            # Calculate the next x and y values.
+            next_x = self.x_values[-1] + x_step
+            next_y = self.y_values[-1] + y_step
+
+            self.x_values.append(next_x)
+            self.y_values.append(next_y)
+```
+
+#### 绘制随机漫步图
+
+```python
+import matplotlib.pyplot as plt
+
+from random_walk import RandomWalk
+
+# Make a random walk, and plot the points.
+rw = RandomWalk()
+rw.fill_walk()
+
+plt.scatter(rw.x_values, rw.y_values, s=15)
+plt.show()
+```
+
+#### 模拟多次随机漫步
+
+```python
+import matplotlib.pyplot as plt
+
+from random_walk import RandomWalk
+
+# Keep making new walks, as long as the program is active.
+while True:
+    # Make a random walk, and plot the points.
+    rw = RandomWalk()
+    rw.fill_walk()
+
+    plt.scatter(rw.x_values, rw.y_values, s=15)
+    plt.show()
+
+    keep_running = input('Make another walk? (y/n): ')
+    if keep_running == 'n':
+        break
+```
+
+#### 给点着色
+
+```python
+import matplotlib.pyplot as plt
+
+from random_walk import RandomWalk
+
+# Keep making new walks, as long as the program is active.
+while True:
+    # Make a random walk, and plot the points.
+    rw = RandomWalk()
+    rw.fill_walk()
+
+    point_numbers = list(range(rw.num_points))
+    plt.scatter(
+        rw.x_values,
+        rw.y_values,
+        c=point_numbers,
+        cmap=plt.cm.Blues,
+        edgecolors='none',
+        s=15)
+    plt.show()
+
+    keep_running = input('Make another walk? (y/n): ')
+    if keep_running == 'n':
+        break
+```
+
+#### 重新绘制起点和终点
+
+```python
+import matplotlib.pyplot as plt
+
+from random_walk import RandomWalk
+
+# Keep making new walks, as long as the program is active.
+while True:
+    # Make a random walk, and plot the points.
+    rw = RandomWalk()
+    rw.fill_walk()
+
+    point_numbers = list(range(rw.num_points))
+    plt.scatter(
+        rw.x_values,
+        rw.y_values,
+        c=point_numbers,
+        cmap=plt.cm.Blues,
+        edgecolors='none',
+        s=15)
+
+    # Emphasize the first and last points.
+    plt.scatter(0, 0, c='green', edgecolors='none', s=100)
+    plt.scatter(
+        rw.x_values[-1], rw.y_values[-1], c='red', edgecolors='none', s=100)
+
+    plt.show()
+
+    keep_running = input('Make another walk? (y/n): ')
+    if keep_running == 'n':
+        break
+```
+
+#### 增加点数
+
+```python
+import matplotlib.pyplot as plt
+
+from random_walk import RandomWalk
+
+# Keep making new walks, as long as the program is active.
+while True:
+    # Make a random walk, and plot the points.
+    rw = RandomWalk(50000)
+    rw.fill_walk()
+    
+    point_numbers = list(range(rw.num_points))
+    plt.scatter(
+        rw.x_values,
+        rw.y_values,
+        c=point_numbers,
+        cmap=plt.cm.Blues,
+        edgecolors='none',
+        s=1)
+
+    # Emphasize the first and last points.
+    plt.scatter(0, 0, c='green', edgecolors='none', s=100)
+    plt.scatter(
+        rw.x_values[-1], rw.y_values[-1], c='red', edgecolors='none', s=100)
+
+    # Remove the axes.
+    plt.axes().get_xaxis().set_visible(False)
+    plt.axes().get_yaxis().set_visible(False)
+
+    plt.show()
+
+    keep_running = input('Make another walk? (y/n): ')
+    if keep_running == 'n':
+        break
+```
+
+### 使用 Pygal 模拟掷骰子
+
+#### 创建 Die 类
+
+```python
+from random import randint
+
+class Die():
+    """A class representing a single die."""
+
+    def __init__(self, num_sides=6):
+        """Assume a six-sided die."""
+        self.num_sides = num_sides
+
+    def roll(self):
+        """Return a random value between 1 and number of sides."""
+        return randint(1, self.num_sides)
+```
+
+#### 绘制直方图
+
+```python
+import pygal
+
+from die import Die
+
+# Create a D6.
+die = Die()
+
+# Make some rolls, and stone results in a list.
+results = []
+for roll_num in range(1000):
+    result = die.roll()
+    results.append(result)
+
+# Analyze the results.
+frequencies = []
+for value in range(1, die.num_sides+1):
+    frequency = results.count(value)
+    frequencies.append(frequency)
+
+# Visualize the results.
+hist = pygal.Bar()
+
+hist.title = 'Results of rolling one D6 1000 times.'
+hist.x_labels = ['1', '2', '3', '4', '5', '6']
+hist.x_title = 'Result'
+hist.y_title = 'Frequency of Result'
+
+hist.add('D6', frequencies)
+hist.render_to_file('die_visual.svg')
+```
+
+#### 同时掷两个骰子
+
+```python
+import pygal
+
+from die import Die
+
+# Create two D6 dice.
+die_1 = Die()
+die_2 = Die()
+
+# Make some rolls, and stone results in a list.
+results = []
+for roll_num in range(1000):
+    result = die_1.roll() + die_2.roll()
+    results.append(result)
+
+# Analyze the results.
+frequencies = []
+max_result = die_1.num_sides + die_2.num_sides
+for value in range(2, max_result+1):
+    frequency = results.count(value)
+    frequencies.append(frequency)
+
+# Visualize the results.
+hist = pygal.Bar()
+
+hist.title = 'Results of rolling two dice 1000 times.'
+hist.x_labels = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+hist.x_title = 'Result'
+hist.y_title = 'Frequency of Result'
+
+hist.add('D6 + D6', frequencies)
+hist.render_to_file('die_visual.svg')
+```
+
+#### 分析 CSV 文件头
+
+csv.reader()，将存储的文件对象作为实参传递给它，从而创建一个与该文件相关联的阅读器（reader对象）。
+
+模块csv包含函数next()，调用它并将阅读器对象传递给它时，它将返回文件中的下一行。在前面的代码中，我们只调用了next()一次，因此得到的是文件的第一行。
+
+```python
+import csv
+
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_07-2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    print(header_row)
+```
+
+#### 打印文件头及其位置
+
+对列表调用了enumerate()来获取每个元素的索引及其值
+
+```python
+import csv
+
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_07-2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    for index, column_header in enumerate(header_row):
+        print(index, column_header)
+```
+
+#### 提取并读取数据
+
+阅读器对象从其停留的地方继续往下读取CSV文件，每次都自动返回当前所处位置的下一行。
+
+由于我们已经读取了文件头行，这个循环将从第二行开始。
+
+```python
+import csv
+
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_07-2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    highs = []
+    for row in reader:
+        high = int(row[1])
+        highs.append(high)
+
+    print(highs)
+```
+
+#### 绘制气温图表
+
+```python
+import csv
+
+from matplotlib import pyplot as plt
+
+# Get high temperatures from file.
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_07-2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    highs = []
+    for row in reader:
+        high = int(row[1])
+        highs.append(high)
+
+# Plot data.
+fig = plt.figure(dpi=128, figsize=(10, 6))
+plt.plot(highs, c='red')
+
+# Format plot.
+plt.title('Daily high temperatures, July 2014', fontsize=24)
+plt.xlabel('', fontsize=16)
+plt.ylabel('Temperature(F)', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+
+plt.show()
+```
+
+#### 模块 datetime
+
+```python
+>>> from datetime import datetime
+>>> first_date = datetime.strptime('2014-7-7', '%Y-%m-%d')
+>>> print(first_date)
+2014-07-07 00:00:00
+```
+
+**p.s.** 模块datetime中设置日期和时间格式的实参
+
+#### 在图表中添加日期
+
+```python
+import csv
+from datetime import datetime
+
+from matplotlib import pyplot as plt
+
+# Get high temperatures from file.
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_07-2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    dates, highs = [], []
+    for row in reader:
+        current_date = datetime.strptime(row[0], '%Y-%m-%d')
+        dates.append(current_date)
+
+        high = int(row[1])
+        highs.append(high)
+
+# Plot data.
+fig = plt.figure(dpi=128, figsize=(10, 6))
+plt.plot(dates, highs, c='red')
+
+# Format plot.
+plt.title('Daily high temperatures, July 2014', fontsize=24)
+plt.xlabel('', fontsize=16)
+fig.autofmt_xdate()
+plt.ylabel('Temperature(F)', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+
+plt.show()
+```
+
+#### 涵盖更长的时间
+
+```python
+import csv
+from datetime import datetime
+
+from matplotlib import pyplot as plt
+
+# Get date and high temperatures from file.
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    dates, highs = [], []
+    for row in reader:
+        current_date = datetime.strptime(row[0], '%Y-%m-%d')
+        dates.append(current_date)
+
+        high = int(row[1])
+        highs.append(high)
+
+# Plot data.
+fig = plt.figure(dpi=128, figsize=(10, 6))
+plt.plot(dates, highs, c='red')
+
+# Format plot.
+plt.title('Daily high temperatures - 2014', fontsize=24)
+plt.xlabel('', fontsize=16)
+fig.autofmt_xdate()
+plt.ylabel('Temperature(F)', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+
+plt.show()
+```
+
+#### 再绘制一个数据系列
+
+```python
+import csv
+from datetime import datetime
+
+from matplotlib import pyplot as plt
+
+# Get date, high, and low temperatures from file.
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    dates, highs, lows = [], [], []
+    for row in reader:
+        current_date = datetime.strptime(row[0], '%Y-%m-%d')
+        dates.append(current_date)
+
+        high = int(row[1])
+        highs.append(high)
+
+        low = int(row[3])
+        lows.append(low)
+
+# Plot data.
+fig = plt.figure(dpi=128, figsize=(10, 6))
+plt.plot(dates, highs, c='red')
+plt.plot(dates, lows, c='blue')
+
+# Format plot.
+plt.title('Daily high and low temperatures - 2014', fontsize=24)
+plt.xlabel('', fontsize=16)
+fig.autofmt_xdate()
+plt.ylabel('Temperature(F)', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+
+plt.show()
+```
+
+#### 给图表区域着色
+
+```python
+import csv
+from datetime import datetime
+
+from matplotlib import pyplot as plt
+
+# Get date, high, and low temperatures from file.
+filename = r'E:\programming\py\code\Python编程\16\sitka_weather_2014.csv'
+with open(filename) as f:
+    reader = csv.reader(f)
+    header_row = next(reader)
+    
+    dates, highs, lows = [], [], []
+    for row in reader:
+        current_date = datetime.strptime(row[0], '%Y-%m-%d')
+        dates.append(current_date)
+
+        high = int(row[1])
+        highs.append(high)
+
+        low = int(row[3])
+        lows.append(low)
+
+# Plot data.
+fig = plt.figure(dpi=128, figsize=(10, 6))
+plt.plot(dates, highs, c='red', alpha=0.5)
+plt.plot(dates, lows, c='blue', alpha=0.5)
+plt.fill_between(dates, highs, lows, facecolor='blue', alpha=0.1)
+
+# Format plot.
+plt.title('Daily high and low temperatures - 2014', fontsize=24)
+plt.xlabel('', fontsize=16)
+fig.autofmt_xdate()
+plt.ylabel('Temperature(F)', fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=16)
+
+plt.show()
+```
+
+### 制作世界人口地图：JSON 格式
+
+#### 提取相关的数据
+
+```python
+import json
+
+# Load the data into a list.
+filename = r'E:\programming\py\code\Python编程\16\population_data.json'
+with open(filename) as f:
+    pop_data = json.load(f)
+
+# Print the 2010 population for each country.
+for pop_dict in pop_data:
+    if pop_dict['Year'] == '2010':
+        country_name = pop_dict['Country Name']
+        population = pop_dict['Value']
+        print(country_name + ': ' + population)
+```
+
+#### 获取两个字母的国别码
+
+pygal_maps_world 已经更新，具体信息看官方文档
+
+```python
+from pygal.maps.world import COUNTRIES
+
+for country_code in sorted(COUNTRIES.keys()):
+    print(country_code, COUNTRIES[country_code])
+```
+
+```python
+from pygal.maps.world import COUNTRIES
+
+def get_country_code(country_name):
+    """Return the pygal 2-digit country code for the given country"""
+    for code, name in COUNTRIES.items():
+        if name == country_name:
+            return code
+    # If the country wasn't found, return None.
+    return None
+```
+
+```python
+import json
+
+from country_codes import get_country_code
+
+# Load the data into a list.
+filename = r'E:\programming\py\code\Python编程\16\population_data.json'
+with open(filename) as f:
+    pop_data = json.load(f)
+
+# Print the 2010 population for each country.
+for pop_dict in pop_data:
+    if pop_dict['Year'] == '2010':
+        country_name = pop_dict['Country Name']
+        population = int(float(pop_dict['Value']))
+        code = get_country_code(country_name)
+        if code:
+            print(code + ': ' + str(population))
+        else:
+            print('ERROR - ' + country_name)
+```
+
+#### 制作世界地图
+
+```python
+from pygal.maps.world import World
+
+wm = World()
+wm.title = 'North, Central, and South America'
+
+wm.add('North America', ['ca', 'mx', 'us'])
+wm.add('Central America', ['bz', 'cr', 'gt', 'hn', 'ni', 'pa', 'sv'])
+wm.add('South America', [
+    'ar', 'bo', 'br', 'cl', 'co', 'ec', 'gf', 'gy', 'pe', 'py', 'sr', 'uy',
+    've'
+])
+
+wm.render_to_file('americas.svg')
+```
+
+#### 在世界地图上呈现数字数据
+
+```python
+from pygal.maps.world import World
+
+wm = World()
+wm.title = 'Population of Countries in North America'
+wm.add('North America', {'ca': 34126000, 'us': 309349000, 'mx': 113423000})
+
+wm.render_to_file('na_populations.svg')
+```
+
+#### 绘制完整的世界人口地图
+
+```python
+import json
+
+from pygal.maps.world import World
+
+from country_codes import get_country_code
+
+# Load the data into a list.
+filename = r'E:\programming\py\code\Python编程\16\population_data.json'
+with open(filename) as f:
+    pop_data = json.load(f)
+
+# Build a dictionary of population data.
+cc_populations = {}
+for pop_dict in pop_data:
+    if pop_dict['Year'] == '2010':
+        country_name = pop_dict['Country Name']
+        population = int(float(pop_dict['Value']))
+        code = get_country_code(country_name)
+        if code:
+            cc_populations[code] = population
+        
+wm = World()
+wm.title = 'World Population in 2010, by Country'
+wm.add('2010', cc_populations)
+
+wm.render_to_file('world_population.svg')
+```
+
+#### 根据人口数量将国家分组
+
+```python
+import json
+
+from pygal.maps.world import World
+
+from country_codes import get_country_code
+
+# Load the data into a list.
+filename = r'E:\programming\py\code\Python编程\16\population_data.json'
+with open(filename) as f:
+    pop_data = json.load(f)
+
+# Build a dictionary of population data.
+cc_populations = {}
+for pop_dict in pop_data:
+    if pop_dict['Year'] == '2010':
+        country_name = pop_dict['Country Name']
+        population = int(float(pop_dict['Value']))
+        code = get_country_code(country_name)
+        if code:
+            cc_populations[code] = population
+
+# Group the countries into 3 population levels.
+cc_pops_1, cc_pops_2, cc_pops_3 = {}, {}, {}
+for cc, pop in cc_populations.items():
+    if pop < 10000000:
+        cc_pops_1[cc] = pop
+    elif pop < 1000000000:
+        cc_pops_2[cc] = pop
+    else:
+        cc_pops_3[cc] = pop
+
+# See how many countries are in each level.
+print(len(cc_pops_1), len(cc_pops_2), len(cc_pops_3))
+        
+wm = World()
+wm.title = 'World Population in 2010, by Country'
+wm.add('0-10m', cc_pops_1)
+wm.add('10m-1bn', cc_pops_2)
+wm.add('>1bn', cc_pops_3)
+
+wm.render_to_file('world_population.svg')
+```
+
+#### 使用 Pygal 设置世界地图的样式
+
+```python
+import json
+
+from pygal.maps.world import World
+from pygal.style import RotateStyle
+
+from country_codes import get_country_code
+
+# Load the data into a list.
+filename = r'E:\programming\py\code\Python编程\16\population_data.json'
+with open(filename) as f:
+    pop_data = json.load(f)
+
+# Build a dictionary of population data.
+cc_populations = {}
+for pop_dict in pop_data:
+    if pop_dict['Year'] == '2010':
+        country_name = pop_dict['Country Name']
+        population = int(float(pop_dict['Value']))
+        code = get_country_code(country_name)
+        if code:
+            cc_populations[code] = population
+
+# Group the countries into 3 population levels.
+cc_pops_1, cc_pops_2, cc_pops_3 = {}, {}, {}
+for cc, pop in cc_populations.items():
+    if pop < 10000000:
+        cc_pops_1[cc] = pop
+    elif pop < 1000000000:
+        cc_pops_2[cc] = pop
+    else:
+        cc_pops_3[cc] = pop
+
+# See how many countries are in each level.
+print(len(cc_pops_1), len(cc_pops_2), len(cc_pops_3))
+
+wm_style = RotateStyle('#336699')
+wm = World(style = wm_style)
+wm.title = 'World Population in 2010, by Country'
+wm.add('0-10m', cc_pops_1)
+wm.add('10m-1bn', cc_pops_2)
+wm.add('>1bn', cc_pops_3)
+
+wm.render_to_file('world_population.svg')
+```
+
+### 使用API
+
+#### 使用 API 调用请求数据
+
+https://api.github.com/search/repositories?q=language:python&sort=stars 
+
+第一部分（https://api.github.com/）将请求发送到GitHub网站中响应API调用的部分；接下来的一部分（search/repositories）让API搜索GitHub上的所有仓库。
+
+repositories后面的问号指出我们要传递一个实参。q表示查询，而等号让我们能够开始指定查询（q=）。通过使用language:python，我们指出只想获取主要语言为Python的仓库的信息。最后一部分（&sort=stars）指定将项目按其获得的星级进行排序。
+
+#### 处理 API 响应
+
+```python
+import requests 
+ 
+# 执行API调用并存储响应
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print("Status code:", r.status_code) 
+ 
+# 将API响应存储在一个变量中
+response_dict = r.json() 
+ 
+# 处理结果 
+print(response_dict.keys())
+```
+
+**p.s.** 执行更复杂的API调用时，程序应检查这个值
+
+#### 处理响应字典
+
+```python
+import requests
+
+# Make an API call and store the response.
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print('Status code:', r.status_code)
+
+# Store API response in a variable.
+response_dict = r.json()
+print("Total repositories:", response_dict['total_count'])
+
+# Explore information about the repositories.
+repo_dicts = response_dict['items']
+print('Repositories returned:', len(repo_dicts))
+
+# Examine the first repository.
+repo_dict = repo_dicts[0]
+print('\nKeys:', len(repo_dict))
+for key in sorted(repo_dict.keys()):
+    print(key)
+```
+
+```python
+import requests
+
+# Make an API call and store the response.
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print('Status code:', r.status_code)
+
+# Store API response in a variable.
+response_dict = r.json()
+print("Total repositories:", response_dict['total_count'])
+
+# Explore information about the repositories.
+repo_dicts = response_dict['items']
+print('Repositories returned:', len(repo_dicts))
+
+# Examine the first repository.
+repo_dict = repo_dicts[0]
+
+print('\nSelected information about first repository:')
+print('Name:', repo_dict['name'])
+print('Owner:', repo_dict['owner']['login'])
+print('Stars:', repo_dict['stargazers_count'])
+print('Repository:', repo_dict['html_url'])
+print('Created:', repo_dict['created_at'])
+print('Updated:', repo_dict['updated_at'])
+print('Description:', repo_dict['description'])
+```
+
+提取repo_dict中与键相关联的值
+
+```python
+import requests
+
+# Make an API call and store the response.
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print('Status code:', r.status_code)
+
+# Store API response in a variable.
+response_dict = r.json()
+print("Total repositories:", response_dict['total_count'])
+
+# Explore information about the repositories.
+repo_dicts = response_dict['items']
+print('Repositories returned:', len(repo_dicts))
+
+print('\nSelected information about each repository:')
+for repo_dict in repo_dicts:
+    print('\nName:', repo_dict['name'])
+    print('Owner:', repo_dict['owner']['login'])
+    print('Stars:', repo_dict['stargazers_count'])
+    print('Repository:', repo_dict['html_url'])
+    print('Description:', repo_dict['description'])
+```
+
+#### 添加自定义工具提示
+
+```python
+import pygal
+from pygal.style import LightColorizedStyle as LCS, LightenStyle as LS
+
+my_style = LS('#333366', base_style=LCS)
+chart = pygal.Bar(style=my_style, x_label_rotation=45, show_legend=False)
+chart.title = 'Python Projects'
+chart.x_labels = ['httpie', 'django', 'flask']
+
+plot_dicts = [
+    {'value': 16101, 'label': 'Description of httpie.'},
+    {'value': 15028, 'label': 'Description of django.'},
+    {'value': 14798, 'label': 'Description of flask.'},
+]
+
+chart.add('', plot_dicts)
+chart.render_to_file('bar_description.svg')
+```
+
+#### 根据数据绘图
+
+```python
+import requests
+import pygal
+from pygal.style import LightColorizedStyle as LCS, LightenStyle as LS
+
+# Make an API call and store the response.
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print('Status code:', r.status_code)
+
+# Store API response in a variable.
+response_dict = r.json()
+print("Total repositories:", response_dict['total_count'])
+
+# Explore information about the repositories.
+repo_dicts = response_dict['items']
+
+names, plot_dicts = [], []
+for repo_dict in repo_dicts:
+    names.append(repo_dict['name'])
+    
+    plot_dict = {
+        'value': repo_dict['stargazers_count'],
+        'label': repo_dict['description'],
+    }
+    plot_dicts.append(plot_dict)
+
+# Make visualization.
+my_style = LS('#333366', base_style=LCS)
+
+my_config = pygal.Config()
+my_config.x_label_rotation = 45
+my_config.show_legend = False
+my_config.title_font_size = 24
+my_config.label_font_size = 14
+my_config.major_label_font_size = 18
+my_config.truncate_label = 15
+my_config.show_y_guides = False
+my_config.width = 1000
+
+chart = pygal.Bar(my_config, style=my_style)
+chart.title = 'Most-Starred Python Projects on Github'
+chart.x_labels = names
+
+chart.add('', plot_dicts)
+chart.render_to_file('python_repos.svg')
+```
+
+#### 在图表中添加可单击的链接
+
+```python
+import requests
+import pygal
+from pygal.style import LightColorizedStyle as LCS, LightenStyle as LS
+
+# Make an API call and store the response.
+url = 'https://api.github.com/search/repositories?q=language:python&sort=stars'
+r = requests.get(url)
+print('Status code:', r.status_code)
+
+# Store API response in a variable.
+response_dict = r.json()
+print("Total repositories:", response_dict['total_count'])
+
+# Explore information about the repositories.
+repo_dicts = response_dict['items']
+
+names, plot_dicts = [], []
+for repo_dict in repo_dicts:
+    names.append(repo_dict['name'])
+    
+    plot_dict = {
+        'value': repo_dict['stargazers_count'],
+        'label': repo_dict['description'],
+        'xlink': repo_dict['html_url'],
+    }
+    plot_dicts.append(plot_dict)
+
+# Make visualization.
+my_style = LS('#333366', base_style=LCS)
+
+my_config = pygal.Config()
+my_config.x_label_rotation = 45
+my_config.show_legend = False
+my_config.title_font_size = 24
+my_config.label_font_size = 14
+my_config.major_label_font_size = 18
+my_config.truncate_label = 15
+my_config.show_y_guides = False
+my_config.width = 1000
+
+chart = pygal.Bar(my_config, style=my_style)
+chart.title = 'Most-Starred Python Projects on Github'
+chart.x_labels = names
+
+chart.add('', plot_dicts)
+chart.render_to_file('python_repos.svg')
+```
